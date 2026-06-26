@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>KES Admin — Ultimate Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;--bg-2:#f8fafc;--bg-3:#f1f5f9;
+  --card:#ffffff;
+  --border:#e5e7eb;--border-2:#d1d5db;
+  --text:#0f172a;--text-2:#334155;--muted:#64748b;
+  --primary:#4f46e5;--primary-2:#6366f1;--primary-light:#eef2ff;
+  --green:#10b981;--green-bg:#ecfdf5;--green-light:#d1fae5;
+  --red:#ef4444;--red-bg:#fef2f2;--red-light:#fee2e2;
+  --yellow:#f59e0b;--yellow-bg:#fffbeb;--yellow-light:#fef3c7;
+  --blue:#3b82f6;--blue-bg:#eff6ff;--blue-light:#dbeafe;
+  --purple:#8b5cf6;--purple-bg:#f5f3ff;--purple-light:#ede9fe;
+  --orange:#f97316;--orange-bg:#fff7ed;--orange-light:#fed7aa;
+  --sidebar:280px;
+  --radius:12px;
+  --shadow:0 1px 3px rgba(0,0,0,0.06);
+  --shadow-lg:0 10px 25px -5px rgba(0,0,0,0.08);
+}
+[data-theme="dark"]{
+  --bg:#0f172a;--bg-2:#1e293b;--bg-3:#334155;
+  --card:#1e293b;
+  --border:#334155;--border-2:#475569;
+  --text:#f1f5f9;--text-2:#cbd5e1;--muted:#94a3b8;
+  --primary-light:rgba(99,102,241,0.15);
+  --green-bg:rgba(16,185,129,0.12);--green-light:rgba(16,185,129,0.2);
+  --red-bg:rgba(239,68,68,0.12);--red-light:rgba(239,68,68,0.2);
+  --yellow-bg:rgba(245,158,11,0.12);--yellow-light:rgba(245,158,11,0.2);
+  --blue-bg:rgba(59,130,246,0.12);--blue-light:rgba(59,130,246,0.2);
+  --purple-bg:rgba(139,92,246,0.12);--purple-light:rgba(139,92,246,0.2);
+  --orange-bg:rgba(249,115,22,0.12);--orange-light:rgba(249,115,22,0.2);
+}
+*{font-family:'Inter',sans-serif;}
+body{background:var(--bg);color:var(--text);min-height:100vh;transition:background 0.3s;}
+
+#login-screen{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:var(--bg-2);}
+.login-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem;width:100%;max-width:400px;box-shadow:var(--shadow-lg);}
+.login-logo{width:64px;height:64px;margin:0 auto 1.25rem;border-radius:16px;background:linear-gradient(135deg,var(--primary),var(--primary-2));display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:#fff;}
+.login-box h2{font-size:1.5rem;font-weight:800;text-align:center;margin-bottom:0.25rem;}
+.login-box .sub{font-size:0.88rem;color:var(--muted);margin-bottom:1.75rem;text-align:center;}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:1rem;}
+.field label{font-size:0.8rem;font-weight:600;color:var(--text-2);}
+.field input,.field select,.field textarea{width:100%;padding:11px 14px;background:var(--bg-2);border:1.5px solid var(--border);border-radius:10px;font-size:0.9rem;color:var(--text);outline:none;transition:all 0.2s;font-family:inherit;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,70,229,0.15);background:var(--card);}
+.btn-primary{width:100%;padding:12px;border:none;border-radius:10px;cursor:pointer;background:var(--primary);color:#fff;font-weight:600;font-size:0.9rem;transition:all 0.2s;}
+.btn-primary:hover{background:var(--primary-2);}
+
+.sidebar{width:var(--sidebar);background:var(--card);border-right:1px solid var(--border);position:fixed;top:0;left:0;height:100vh;z-index:50;display:flex;flex-direction:column;overflow-y:auto;}
+.sidebar-logo{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.logo-ico{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--primary),var(--primary-2));display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:#fff;}
+.brand{font-weight:800;font-size:1rem;}
+.brand-sub{font-size:0.7rem;color:var(--muted);}
+.sidebar-nav{flex:1;padding:1rem 0.75rem;display:flex;flex-direction:column;gap:2px;}
+.nav-section{font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;padding:12px 12px 6px;}
+.nav-item{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:9px;font-size:0.875rem;font-weight:500;color:var(--text-2);cursor:pointer;transition:all 0.15s;border:none;background:none;width:100%;text-align:left;}
+.nav-item:hover{background:var(--bg-2);color:var(--text);}
+.nav-item.active{background:var(--primary-light);color:var(--primary);font-weight:600;}
+.nav-item .icon{font-size:1rem;width:22px;text-align:center;}
+.nav-badge{margin-left:auto;background:var(--primary);color:#fff;font-size:0.65rem;font-weight:700;padding:2px 8px;border-radius:99px;}
+
+.main{margin-left:var(--sidebar);min-height:100vh;display:flex;flex-direction:column;}
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;}
+.topbar-left{display:flex;align-items:center;gap:14px;}
+.topbar-title{font-weight:700;font-size:1.1rem;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.status-pill{display:inline-flex;align-items:center;gap:7px;font-size:0.75rem;font-weight:600;color:var(--green);background:var(--green-bg);padding:6px 12px;border-radius:99px;border:1px solid var(--green-light);}
+.status-pill::before{content:'';width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.icon-btn{width:38px;height:38px;border-radius:10px;background:var(--bg-2);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all 0.15s;color:var(--text-2);}
+.icon-btn:hover{background:var(--bg-3);color:var(--text);}
+
+.content{padding:2rem;flex:1;}
+.tab-content{display:none;animation:fadeIn 0.3s;}
+.tab-content.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;}
+.page-title{font-size:1.5rem;font-weight:800;}
+.page-sub{font-size:0.88rem;color:var(--muted);margin-top:2px;}
+
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;transition:all 0.2s;}
+.stat-card:hover{border-color:var(--border-2);box-shadow:var(--shadow-lg);transform:translateY(-2px);}
+.stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;margin-bottom:12px;}
+.stat-label{font-size:0.78rem;color:var(--muted);font-weight:500;margin-bottom:4px;}
+.stat-value{font-size:1.85rem;font-weight:800;line-height:1;}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.5rem;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:10px;}
+.card-title{font-size:1.05rem;font-weight:700;display:flex;align-items:center;gap:10px;}
+.card-title .ico{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;background:var(--primary-light);color:var(--primary);}
+
+.btn{padding:9px 16px;border-radius:10px;font-size:0.85rem;font-weight:600;cursor:pointer;border:1px solid transparent;transition:all 0.15s;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:var(--primary);color:#fff;}
+.btn-primary:hover{background:var(--primary-2);}
+.btn-success{background:var(--green-bg);color:var(--green);border-color:var(--green-light);}
+.btn-danger{background:var(--red-bg);color:var(--red);border-color:var(--red-light);}
+.btn-warning{background:var(--yellow-bg);color:var(--yellow);border-color:var(--yellow-light);}
+.btn-ghost{background:var(--bg-2);color:var(--text-2);border-color:var(--border);}
+.btn-ghost:hover{background:var(--bg-3);color:var(--text);}
+.btn-sm{padding:6px 12px;font-size:0.78rem;border-radius:8px;}
+.btn-purple{background:var(--purple-bg);color:var(--purple);border-color:var(--purple-light);}
+.btn-orange{background:var(--orange-bg);color:var(--orange);border-color:var(--orange-light);}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.form-full{grid-column:1/-1;}
+
+#editor-container{height:200px;background:var(--card);border:1.5px solid var(--border);border-radius:10px;}
+.ql-toolbar.ql-snow{border:none!important;border-bottom:1px solid var(--border)!important;background:var(--bg-2);border-radius:10px 10px 0 0;}
+.ql-container.ql-snow{border:none!important;font-family:'Inter',sans-serif;font-size:0.9rem;}
+
+.college-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;}
+.college-junior{background:var(--orange-bg);color:var(--orange);}
+.college-degree{background:var(--blue-bg);color:var(--blue);}
+.college-both{background:var(--purple-bg);color:var(--purple);}
+
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;padding:14px 20px;border-radius:12px;font-size:0.875rem;font-weight:500;z-index:9999;max-width:360px;box-shadow:var(--shadow-lg);background:var(--card);border:1px solid var(--border);display:none;align-items:center;gap:10px;}
+.toast.show{display:flex;animation:slideUp 0.3s;}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.toast.success{border-left:4px solid var(--green);}
+.toast.error{border-left:4px solid var(--red);}
+
+.empty-box{text-align:center;padding:3rem 2rem;color:var(--muted);}
+.empty-box .e-ico{font-size:3rem;margin-bottom:1rem;opacity:0.5;}
+.empty-box h3{font-size:1.1rem;margin-bottom:6px;color:var(--text);}
+
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;}
+  .form-grid{grid-template-columns:1fr;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .topbar{padding:0 1rem;}
+  .content{padding:1rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">🎓</div>
+    <h2>Welcome Back</h2>
+    <p class="sub">KES Admin Panel</p>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="login-pass" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()" autofocus />
+    </div>
+    <button class="btn-primary" onclick="doLogin()">Sign In →</button>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-ico">🎓</div>
+    <div>
+      <div class="brand">KES Admin</div>
+      <div class="brand-sub">Notice Management</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Main</div>
+    <button class="nav-item active" onclick="switchTab('dashboard',this)"><span class="icon">📊</span> Dashboard</button>
+    
+    <div class="nav-section">Notices</div>
+    <button class="nav-item" onclick="switchTab('add',this)"><span class="icon">➕</span> Add Notice</button>
+    <button class="nav-item" onclick="switchTab('manage',this)"><span class="icon">📋</span> Manage <span class="nav-badge" id="active-badge">0</span></button>
+    <button class="nav-item" onclick="switchTab('trash',this)"><span class="icon">🗑️</span> Trash</button>
+    
+    <div class="nav-section">Tools</div>
+    <button class="nav-item" onclick="switchTab('templates',this)"><span class="icon">📄</span> Templates</button>
+    <button class="nav-item" onclick="switchTab('bulk',this)"><span class="icon">⚡</span> Bulk Actions</button>
+    <button class="nav-item" onclick="switchTab('settings',this)"><span class="icon">⚙️</span> Settings</button>
+  </nav>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title" id="page-title">Dashboard</div>
+    </div>
+    <div class="topbar-right">
+      <button class="icon-btn" onclick="toggleTheme()" title="Toggle Theme" id="theme-btn">🌙</button>
+      <div class="status-pill">Connected</div>
+      <a href="index.html" target="_blank" class="btn btn-ghost btn-sm">🌐 View Site</a>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- DASHBOARD -->
+    <div class="tab-content active" id="tab-dashboard">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Dashboard</div>
+          <div class="page-sub">Welcome back! Here's your overview.</div>
+        </div>
+        <button class="btn btn-primary" onclick="switchTab('add',document.querySelector('[onclick*=add]'))">➕ New Notice</button>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:var(--primary-light);color:var(--primary);">📢</div>
+          <div class="stat-label">Total Notices</div>
+          <div class="stat-value" id="s-total">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:var(--green-bg);color:var(--green);">✅</div>
+          <div class="stat-label">Active</div>
+          <div class="stat-value" style="color:var(--green)" id="s-active">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:var(--orange-bg);color:var(--orange);">🏫</div>
+          <div class="stat-label">Junior College</div>
+          <div class="stat-value" style="color:var(--orange)" id="s-junior">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:var(--blue-bg);color:var(--blue);">🎓</div>
+          <div class="stat-label">Degree College</div>
+          <div class="stat-value" style="color:var(--blue)" id="s-degree">—</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span class="ico">📢</span> Recent Notices</div>
+          <button class="btn btn-ghost btn-sm" onclick="switchTab('manage',document.querySelector('[onclick*=manage]'))">View All →</button>
+        </div>
+        <div id="recent-list"></div>
+      </div>
+    </div>
+
+    <!-- ADD NOTICE -->
+    <div class="tab-content" id="tab-add">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Add New Notice</div>
+          <div class="page-sub">Create and publish a new notice</div>
+        </div>
+        <button class="btn btn-ghost" onclick="loadTemplate()">📄 Use Template</button>
+      </div>
+      <div class="card">
+        <div class="form-grid">
+          <div class="field form-full">
+            <label>Notice Title *</label>
+            <input type="text" id="a-title" placeholder="e.g. Admission form last date: 30 June 2026" />
+          </div>
+          <div class="field form-full">
+            <label>Rich Content</label>
+            <div id="editor-container"></div>
+          </div>
+          <div class="field">
+            <label>College Type *</label>
+            <select id="a-college">
+              <option value="both">🎓 Both (Junior + Degree)</option>
+              <option value="junior">🏫 Junior College Only</option>
+              <option value="degree">🎓 Degree College Only</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Category</label>
+            <select id="a-cat">
+              <option value="general">📢 General</option>
+              <option value="admission">🎓 Admission</option>
+              <option value="exam">📝 Exam</option>
+              <option value="event">📅 Event</option>
+              <option value="fees">💰 Fees</option>
+              <option value="announcement">📣 Announcement</option>
+              <option value="holiday">🎉 Holiday</option>
+              <option value="result">🏆 Result</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Priority</label>
+            <input type="number" id="a-priority" value="0" min="0" max="10" />
+          </div>
+          <div class="field">
+            <label>Link (optional)</label>
+            <input type="url" id="a-link" placeholder="https://..." />
+          </div>
+          <div class="field form-full">
+            <label>Options</label>
+            <div style="display:flex;gap:20px;margin-top:6px;flex-wrap:wrap;">
+              <label style="display:flex;align-items:center;gap:6px;font-size:0.88rem;cursor:pointer;">
+                <input type="checkbox" id="a-pinned" /> 📌 Pin
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:0.88rem;cursor:pointer;">
+                <input type="checkbox" id="a-active" checked /> ✅ Active
+              </label>
+            </div>
+          </div>
+          <div class="field form-full">
+            <label>Image (optional)</label>
+            <div style="border:2px dashed var(--border-2);border-radius:var(--radius);padding:2rem;text-align:center;cursor:pointer;background:var(--bg-2);" onclick="document.getElementById('img-file').click()">
+              <div style="font-size:2.5rem;margin-bottom:10px;">🖼️</div>
+              <p style="font-size:0.85rem;color:var(--muted);"><strong>Click to upload</strong> or drag & drop</p>
+              <div id="img-preview-wrap" style="display:none;margin-top:12px;position:relative;">
+                <img id="img-preview" style="max-height:180px;max-width:100%;border-radius:10px;" />
+                <button onclick="removeImg(event)" style="position:absolute;top:-8px;right:-8px;background:var(--red);color:#fff;border:none;border-radius:50%;width:26px;height:26px;cursor:pointer;">✕</button>
+              </div>
+            </div>
+            <input type="file" id="img-file" accept="image/*" style="display:none;" onchange="handleImgSelect(this)" />
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:1.5rem;flex-wrap:wrap;">
+          <button class="btn btn-primary" id="add-btn" onclick="addNotice()">➕ Add Notice</button>
+          <button class="btn btn-ghost" onclick="clearAddForm()">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MANAGE -->
+    <div class="tab-content" id="tab-manage">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Manage Notices</div>
+          <div class="page-sub">Edit, delete, and organize</div>
+        </div>
+        <button class="btn btn-primary" onclick="switchTab('add',document.querySelector('[onclick*=add]'))">➕ New</button>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span class="ico">📋</span> All Notices</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <input type="text" placeholder="🔍 Search..." oninput="renderNotices()" id="search-input" style="padding:8px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:0.85rem;background:var(--card);color:var(--text);max-width:200px;" />
+            <select id="filter-college" onchange="renderNotices()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:0.82rem;background:var(--card);color:var(--text);">
+              <option value="all">All Colleges</option>
+              <option value="junior">Junior College</option>
+              <option value="degree">Degree College</option>
+              <option value="both">Both</option>
+            </select>
+            <select id="filter-cat" onchange="renderNotices()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:0.82rem;background:var(--card);color:var(--text);">
+              <option value="all">All Categories</option>
+              <option value="general">General</option>
+              <option value="admission">Admission</option>
+              <option value="exam">Exam</option>
+              <option value="event">Event</option>
+              <option value="fees">Fees</option>
+            </select>
+          </div>
+        </div>
+        <div id="notices-container"></div>
+      </div>
+    </div>
+
+    <!-- TRASH -->
+    <div class="tab-content" id="tab-trash">
+      <div class="page-header">
+        <div>
+          <div class="page-title">🗑️ Trash</div>
+          <div class="page-sub">Deleted notices (recoverable)</div>
+        </div>
+        <button class="btn btn-danger" onclick="emptyTrash()">🗑️ Empty Trash</button>
+      </div>
+      <div class="card">
+        <div id="trash-list"></div>
+      </div>
+    </div>
+
+    <!-- TEMPLATES -->
+    <div class="tab-content" id="tab-templates">
+      <div class="page-header">
+        <div>
+          <div class="page-title">📄 Notice Templates</div>
+          <div class="page-sub">Quick-start with pre-made templates</div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;" id="templates-list"></div>
+      </div>
+    </div>
+
+    <!-- BULK -->
+    <div class="tab-content" id="tab-bulk">
+      <div class="page-header">
+        <div>
+          <div class="page-title">⚡ Bulk Actions</div>
+          <div class="page-sub">Manage multiple notices at once</div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;">
+          <button class="btn btn-success" style="justify-content:center;padding:1.5rem;flex-direction:column;gap:8px;" onclick="bulkAll(true)">✅<br>Activate ALL</button>
+          <button class="btn btn-warning" style="justify-content:center;padding:1.5rem;flex-direction:column;gap:8px;" onclick="bulkAll(false)">🙈<br>Hide ALL</button>
+          <button class="btn btn-danger" style="justify-content:center;padding:1.5rem;flex-direction:column;gap:8px;" onclick="deleteAll()">🗑<br>Delete ALL</button>
+          <button class="btn btn-purple" style="justify-content:center;padding:1.5rem;flex-direction:column;gap:8px;" onclick="unpinAll()">📌<br>Unpin ALL</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="tab-content" id="tab-settings">
+      <div class="page-header">
+        <div>
+          <div class="page-title">⚙️ Settings</div>
+          <div class="page-sub">Configure your admin panel</div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 0;border-bottom:1px solid var(--border);">
+            <div>
+              <h4 style="font-size:0.9rem;font-weight:600;margin-bottom:3px;">🎨 Appearance</h4>
+              <p style="font-size:0.8rem;color:var(--muted);">Toggle between light and dark mode</p>
+            </div>
+            <button class="btn btn-ghost" onclick="toggleTheme()">🌓 Toggle Theme</button>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 0;border-bottom:1px solid var(--border);">
+            <div>
+              <h4 style="font-size:0.9rem;font-weight:600;margin-bottom:3px;">⬇️ Export All Data</h4>
+              <p style="font-size:0.8rem;color:var(--muted);">Download all notices as JSON</p>
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="exportNotices()">Export JSON</button>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 0;">
+            <div>
+              <h4 style="font-size:0.9rem;font-weight:600;margin-bottom:3px;">🌐 View Site</h4>
+              <p style="font-size:0.8rem;color:var(--muted);">Open the public-facing website</p>
+            </div>
+            <a href="index.html" target="_blank" class="btn btn-primary btn-sm">Open Site</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+<script>
+const SUPABASE_URL = 'https://jbyctjddlbyddzavmczg.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpieWN0amRkbGJ5ZGR6YXZtY3pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzNzE2NzYsImV4cCI6MjA5Nzk0NzY3Nn0.klEa0-zSGbHZYA-fYiHYg4ceoL1PQ87gowGEbvVmhqU';
+const ADMIN_PASS = '8291692332';
+const BUCKET = 'notice-images';
+
+let allData = [];
+let trashData = [];
+let addImgFile = null;
+let quill = null;
+let editingId = null;
+
+// THEME
+function toggleTheme(){
+  const curr = document.documentElement.getAttribute('data-theme');
+  const next = curr === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('kes_theme', next);
+  document.getElementById('theme-btn').textContent = next === 'dark' ? '☀️' : '🌙';
+}
+(function(){
+  const saved = localStorage.getItem('kes_theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  setTimeout(()=>{
+    document.getElementById('theme-btn').textContent = saved === 'dark' ? '☀️' : '🌙';
+  },100);
+})();
+
+// AUTH
+function doLogin() {
+  if (document.getElementById('login-pass').value === ADMIN_PASS) {
+    document.getElementById('login-screen').style.display = 'none';
+    init();
+  }
+}
+
+function init() {
+  quill = new Quill('#editor-container', {
+    theme: 'snow',
+    placeholder: 'Write your notice content here...',
+    modules: {
+      toolbar: [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        ['link', 'image'],
+        ['clean']
+      ]
+    }
+  });
+  loadAll();
+}
+
+// TABS
+const TITLES = {dashboard:'Dashboard',add:'Add Notice',manage:'Manage Notices',trash:'Trash',templates:'Templates',bulk:'Bulk Actions',settings:'Settings'};
+function switchTab(name, el) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+  document.getElementById('page-title').textContent = TITLES[name] || name;
+  if (name === 'trash') renderTrash();
+  if (name === 'templates') renderTemplates();
+  if (name === 'manage') renderNotices();
+}
+
+// API
+const H = () => ({'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'});
+async function api(path, opts={}) {
+  const r = await fetch(SUPABASE_URL + path, {
+    ...opts,
+    headers: {...H(), ...(opts.headers||{})}
+  });
+  if (!r.ok) { 
+    const e = await r.text(); 
+    throw new Error(e || `HTTP ${r.status}`); 
+  }
+  const text = await r.text();
+  return text ? JSON.parse(text) : null;
+}
+
+// LOAD
+async function loadAll() {
+  try {
+    allData = await api('/rest/v1/notices?deleted_at=is.null&order=created_at.desc');
+    trashData = await api('/rest/v1/notices?deleted_at=not.is.null&order=deleted_at.desc');
+    
+    renderDashboard();
+    renderNotices();
+    document.getElementById('active-badge').textContent = allData.filter(n=>n.is_active).length;
+  } catch(e) { toast('❌ Load error: ' + e.message, 'error'); }
+}
+
+// DASHBOARD
+function renderDashboard() {
+  const total = allData.length;
+  const active = allData.filter(n=>n.is_active).length;
+  const junior = allData.filter(n=>n.college_type==='junior' || n.college_type==='both').length;
+  const degree = allData.filter(n=>n.college_type==='degree' || n.college_type==='both').length;
+  
+  document.getElementById('s-total').textContent = total;
+  document.getElementById('s-active').textContent = active;
+  document.getElementById('s-junior').textContent = junior;
+  document.getElementById('s-degree').textContent = degree;
+
+  const recent = allData.slice(0,5);
+  document.getElementById('recent-list').innerHTML = recent.length
+    ? recent.map(n=>`
+      <div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg-2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;">
+        <div style="font-size:1.3rem;">${catIcon(n.category)}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:0.85rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(n.title)}</div>
+          <div style="font-size:0.72rem;color:var(--muted);">${fDate(n.created_at)} · <span class="college-badge college-${n.college_type}">${n.college_type}</span></div>
+        </div>
+      </div>`).join('')
+    : '<div class="empty-box"><div class="e-ico">📭</div><h3>No notices yet</h3></div>';
+}
+
+// NOTICES
+function renderNotices() {
+  const container = document.getElementById('notices-container');
+  const q = (document.getElementById('search-input')?.value || '').toLowerCase();
+  const college = document.getElementById('filter-college')?.value || 'all';
+  const cat = document.getElementById('filter-cat')?.value || 'all';
+  
+  let filtered = allData;
+  if (college !== 'all') filtered = filtered.filter(n=>n.college_type===college);
+  if (cat !== 'all') filtered = filtered.filter(n=>n.category===cat);
+  if (q) filtered = filtered.filter(n=>n.title.toLowerCase().includes(q)||(n.description||'').toLowerCase().includes(q));
+
+  if (!filtered.length) {
+    container.innerHTML = '<div class="empty-box"><div class="e-ico">📭</div><h3>No notices found</h3></div>';
+    return;
+  }
+
+  container.innerHTML = filtered.map(n => `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg-2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;">
+      <div style="font-size:1.3rem;">${catIcon(n.category)}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:0.88rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(n.title)}</div>
+        <div style="font-size:0.75rem;color:var(--muted);">${fDate(n.created_at)} · <span class="college-badge college-${n.college_type}">${n.college_type}</span> · <span class="tag tag-${n.category}" style="display:inline-block;font-size:0.68rem;font-weight:700;padding:3px 8px;border-radius:99px;text-transform:uppercase;background:var(--bg-3);color:var(--muted);">${n.category}</span></div>
+      </div>
+      <button class="btn btn-sm btn-ghost" onclick="openEdit(${n.id})">✏️ Edit</button>
+      <button class="btn btn-sm btn-danger" onclick="softDelete(${n.id})">🗑</button>
+    </div>
+  `).join('');
+}
+
+// TRASH
+function renderTrash() {
+  document.getElementById('trash-list').innerHTML = trashData.length
+    ? trashData.map(n => `
+      <div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--red-bg);border:1px solid var(--red-light);border-radius:10px;margin-bottom:8px;">
+        <div style="font-size:1.3rem;">🗑️</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:0.88rem;font-weight:600;">${escapeHtml(n.title)}</div>
+          <div style="font-size:0.75rem;color:var(--muted);">Deleted ${fDate(n.deleted_at)}</div>
+        </div>
+        <button class="btn btn-sm btn-success" onclick="restoreNotice(${n.id})">♻️ Restore</button>
+        <button class="btn btn-sm btn-danger" onclick="permanentDelete(${n.id})">❌ Delete Forever</button>
+      </div>
+    `).join('')
+    : '<div class="empty-box"><div class="e-ico">🗑️</div><h3>Trash is empty</h3></div>';
+}
+
+async function softDelete(id) {
+  if (!confirm('Move to trash?')) return;
+  try {
+    await api(`/rest/v1/notices?id=eq.${id}`, {method:'PATCH', body:JSON.stringify({deleted_at:new Date().toISOString()})});
+    toast('🗑️ Moved to trash!','success');
+    loadAll();
+  } catch(e) { toast('❌ Error!','error'); }
+}
+
+async function restoreNotice(id) {
+  try {
+    await api(`/rest/v1/notices?id=eq.${id}`, {method:'PATCH', body:JSON.stringify({deleted_at:null})});
+    toast('♻️ Restored!','success');
+    loadAll();
+  } catch(e) { toast('❌ Error!','error'); }
+}
+
+async function permanentDelete(id) {
+  if (!confirm('Delete permanently?')) return;
+  try {
+    await api(`/rest/v1/notices?id=eq.${id}`, {method:'DELETE'});
+    toast('❌ Permanently deleted!','success');
+    loadAll();
+  } catch(e) { toast('❌ Error!','error'); }
+}
+
+async function emptyTrash() {
+  if (!confirm('Empty trash? All deleted notices will be permanently removed!')) return;
+  try {
+    await api(`/rest/v1/notices?deleted_at=not.is.null`, {method:'DELETE'});
+    toast('🗑️ Trash emptied!','success');
+    loadAll();
+  } catch(e) { toast('❌ Error!','error'); }
+}
+
+// TEMPLATES
+const TEMPLATES = [
+  {name:'Admission Notice',icon:'🎓',cat:'admission',college:'both',title:'Admissions Open 2026-27',content:'<p><strong>Applications are now open</strong> for all courses.</p><ul><li>Last date: [DATE]</li><li>Visit admission office</li></ul>'},
+  {name:'Exam Schedule',icon:'📝',cat:'exam',college:'both',title:'Exam Schedule Released',content:'<p>The examination schedule has been published.</p><p>Exams start from <mark>[DATE]</mark>.</p>'},
+  {name:'Fee Reminder',icon:'💰',cat:'fees',college:'both',title:'Fee Payment Reminder',content:'<p>Last date for fee payment is <strong>[DATE]</strong>.</p><p>Pay online to avoid late fees.</p>'},
+  {name:'Event Announcement',icon:'📅',cat:'event',college:'both',title:'College Event: [NAME]',content:'<p>Join us for <strong>[EVENT NAME]</strong> on [DATE].</p>'},
+  {name:'Holiday Notice',icon:'🎉',cat:'holiday',college:'both',title:'College Holiday',content:'<p>College will remain closed on <strong>[DATE]</strong>.</p>'},
+  {name:'Result Declaration',icon:'🏆',cat:'result',college:'both',title:'Results Declared',content:'<p>Results have been declared.</p><p>Check your results on the student portal.</p>'},
+];
+
+function renderTemplates() {
+  document.getElementById('templates-list').innerHTML = TEMPLATES.map((t,i)=>`
+    <button class="btn btn-ghost" style="flex-direction:column;align-items:flex-start;padding:1.25rem;text-align:left;height:100%;" onclick="useTemplate(${i})">
+      <div style="font-size:2rem;margin-bottom:8px;">${t.icon}</div>
+      <strong style="font-size:0.95rem;margin-bottom:4px;">${t.name}</strong>
+      <span style="font-size:0.78rem;color:var(--muted);">${t.title}</span>
+    </button>
+  `).join('');
+}
+
+function useTemplate(i) {
+  const t = TEMPLATES[i];
+  switchTab('add',document.querySelector('[onclick*=add]'));
+  document.getElementById('a-title').value = t.title;
+  quill.root.innerHTML = t.content;
+  document.getElementById('a-cat').value = t.cat;
+  document.getElementById('a-college').value = t.college;
+  toast('✅ Template loaded!','success');
+}
+
+function loadTemplate() {
+  switchTab('templates',document.querySelector('[onclick*=templates]'));
+}
+
+// IMAGE
+function handleImgSelect(input) {
+  const file = input.files[0]; if (!file) return;
+  addImgFile = file;
+  const r = new FileReader();
+  r.onload = e => {
+    document.getElementById('img-preview').src = e.target.result;
+    document.getElementById('img-preview-wrap').style.display = 'inline-block';
+  };
+  r.readAsDataURL(file);
+}
+
+function removeImg(e) {
+  e.stopPropagation();
+  addImgFile = null;
+  document.getElementById('img-preview-wrap').style.display = 'none';
+  document.getElementById('img-file').value = '';
+}
+
+async function uploadImg(file) {
+  const ext = file.name.split('.').pop();
+  const path = `notices/${Date.now()}_${Math.random().toString(36).substr(2,6)}.${ext}`;
+  const r = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`, {
+    method:'POST', headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':file.type}, body:file
+  });
+  if (!r.ok) throw new Error('Image upload failed');
+  return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${path}`;
+}
+
+// ADD NOTICE
+async function addNotice() {
+  const title = document.getElementById('a-title').value.trim();
+  if (!title) { toast('❌ Title is required!','error'); return; }
+  
+  const btn = document.getElementById('add-btn');
+  btn.disabled = true; btn.textContent = editingId ? 'Updating...' : 'Adding...';
+  
+  try {
+    let image_url = null;
+    if (addImgFile) { image_url = await uploadImg(addImgFile); }
+    
+    const content = quill.root.innerHTML;
+    const payload = {
+      title,
+      description: quill.getText().substring(0, 200),
+      content,
+      link: document.getElementById('a-link').value.trim()||null,
+      category: document.getElementById('a-cat').value,
+      college_type: document.getElementById('a-college').value,
+      priority: parseInt(document.getElementById('a-priority').value)||0,
+      is_pinned: document.getElementById('a-pinned').checked,
+      is_active: document.getElementById('a-active').checked,
+      image_url
+    };
+    
+    if (editingId) {
+      await api(`/rest/v1/notices?id=eq.${editingId}`, {method:'PATCH', body:JSON.stringify(payload)});
+      toast('✅ Notice updated!','success');
+      editingId = null;
+    } else {
+      await api('/rest/v1/notices', {method:'POST', body:JSON.stringify(payload)});
+      toast('✅ Notice added!','success');
+    }
+    
+    clearAddForm();
+    loadAll();
+    switchTab('manage', document.querySelector('[onclick*=manage]'));
+  } catch(e) { toast('❌ Error: '+e.message,'error'); }
+  finally { btn.disabled=false; btn.textContent='➕ Add Notice'; }
+}
+
+function clearAddForm() {
+  document.getElementById('a-title').value = '';
+  quill.root.innerHTML = '';
+  document.getElementById('a-cat').value = 'general';
+  document.getElementById('a-college').value = 'both';
+  document.getElementById('a-priority').value = '0';
+  document.getElementById('a-link').value = '';
+  document.getElementById('a-pinned').checked = false;
+  document.getElementById('a-active').checked = true;
+  addImgFile = null;
+  document.getElementById('img-preview-wrap').style.display = 'none';
+  document.getElementById('img-file').value = '';
+  editingId = null;
+}
+
+// EDIT
+function openEdit(id) {
+  const n = allData.find(x=>x.id===id);
+  if (!n) return;
+  editingId = id;
+  switchTab('add', document.querySelector('[onclick*=add]'));
+  document.getElementById('a-title').value = n.title;
+  quill.root.innerHTML = n.content || n.description || '';
+  document.getElementById('a-cat').value = n.category;
+  document.getElementById('a-college').value = n.college_type || 'both';
+  document.getElementById('a-priority').value = n.priority || 0;
+  document.getElementById('a-link').value = n.link || '';
+  document.getElementById('a-pinned').checked = n.is_pinned;
+  document.getElementById('a-active').checked = n.is_active;
+  document.getElementById('add-btn').textContent = '💾 Update Notice';
+}
+
+// BULK
+async function bulkAll(val) {
+  if (!confirm(`${val?'Activate':'Hide'} ALL notices?`)) return;
+  await api(`/rest/v1/notices?deleted_at=is.null`, {method:'PATCH', body:JSON.stringify({is_active:val})});
+  toast(`✅ All notices ${val?'activated':'hidden'}!`,'success');
+  loadAll();
+}
+
+async function deleteAll() {
+  if (!confirm('DELETE ALL notices?')) return;
+  await api(`/rest/v1/notices?deleted_at=is.null`, {method:'PATCH', body:JSON.stringify({deleted_at:new Date().toISOString()})});
+  toast('🗑 All deleted!','success');
+  loadAll();
+}
+
+async function unpinAll() {
+  await api(`/rest/v1/notices?deleted_at=is.null`, {method:'PATCH', body:JSON.stringify({is_pinned:false})});
+  toast('📌 All unpinned!','success');
+  loadAll();
+}
+
+// EXPORT
+function exportNotices() {
+  const blob = new Blob([JSON.stringify(allData, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'kes-notices-' + new Date().toISOString().split('T')[0] + '.json';
+  a.click();
+  toast('⬇️ Exported!','success');
+}
+
+// HELPERS
+const CAT_ICONS = {admission:'🎓',exam:'📝',event:'📅',fees:'💰',general:'📢',announcement:'📣',holiday:'🎉',result:'🏆'};
+function catIcon(c) { return CAT_ICONS[c]||'📢'; }
+function fDate(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+}
+function escapeHtml(s) {
+  return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function toast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.innerHTML = `<span style="font-size:1.1rem;">${type==='success'?'✅':'❌'}</span><span>${msg}</span>`;
+  t.className = 'toast show ' + type;
+  setTimeout(()=>{ t.classList.remove('show'); }, 3000);
+}
+</script>
+</body>
+</html>
